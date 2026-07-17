@@ -178,3 +178,5 @@ fund_analyzer/
 ## License
 
 MIT License
+
+本程序基于开源改进，增加了gui.py ,可以直接运行gui.py 来调用main.py .通过图形界面来使用，极大方便使用。
