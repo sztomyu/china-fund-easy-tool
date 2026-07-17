@@ -34,7 +34,8 @@ pip install -r requirements.txt
 
 ```bash
 # 启动程序
-python main.py
+Python gui.py (会自动调用main.py) 图形界面程序使用
+python main.py （直接运行，没有gui）
 ```
 
 ### 主菜单
