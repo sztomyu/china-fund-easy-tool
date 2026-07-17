@@ -1,2 +1,180 @@
-# china-fund-easy-tool
-china  user-friendly platform offering graphical fund query, comparison, and analysis tools, designed to help individual investors efficiently screen through thousands of funds.
+# 基金分析工具 v1.0
+
+基于 Python 的基金数据分析工具，从天天基金网 (fund.eastmoney.com) 爬取实时数据，支持基金筛选、收益分析、可视化图表和 Excel 报告导出。
+
+---
+
+## 功能特性
+
+| 功能 | 说明 |
+|------|------|
+| 基金列表爬取 | 获取全部 26000+ 只基金的基础信息 |
+| 基金排行 | 按近1月/3月/6月/1年/2年/3年收益率排序 |
+| 优质基金筛选 | 按类型、收益率、回撤、评级多维度筛选 |
+| 单基金分析 | 历史净值走势、收益率、波动率、夏普比率、最大回撤 |
+| 多基金对比 | 横向对比多只基金的收益与风险指标 |
+| 相关性分析 | 计算多只基金日增长率的相关性矩阵 |
+| 可视化图表 | 净值走势图、收益对比图、类型分布图、相关性热力图 |
+| Excel报告 | 多Sheet综合分析报告导出 |
+| 一键分析 | 自动爬取TOP基金并生成完整分析报告 |
+
+---
+
+## 安装依赖
+
+```bash
+pip install -r requirements.txt
+```
+
+所需包: requests, beautifulsoup4, pandas, numpy, pyecharts, openpyxl, colorama, tqdm, lxml
+
+---
+
+## 快速开始
+
+```bash
+# 启动程序
+python main.py
+```
+
+### 主菜单
+
+```
+=====================================
+     基金分析工具 v1.0
+=====================================
+请选择操作:
+  1. 爬取基金列表
+  2. 查看基金排行TOP100
+  3. 筛选优质基金
+  4. 分析单只基金历史净值
+  5. 对比多只基金
+  6. 基金相关性分析
+  7. 生成可视化图表
+  8. 导出Excel报告
+  9. 一键综合分析
+  0. 退出
+=====================================
+```
+
+---
+
+## 使用示例
+
+### 1. 查看基金排行
+选择菜单 `2`，选择排序方式（如近1年），查看收益率排名靠前的基金。
+
+### 2. 分析单只基金
+选择菜单 `4`，输入基金代码（如 `161725` 招商中证白酒），程序会自动：
+- 爬取历史净值数据
+- 计算收益率、波动率、夏普比率、最大回撤等指标
+- 可选择生成净值走势图
+
+### 3. 对比多只基金
+选择菜单 `5`，输入多个基金代码（逗号分隔），如：
+```
+请输入基金代码（逗号分隔）: 161725,005660,000001
+```
+
+### 4. 筛选优质基金
+选择菜单 `3`，按条件筛选，例如：
+- 基金类型: 混合型-偏股
+- 最低近1年收益率: 20
+- 最大回撤限制: -30
+- 返回前20名
+
+### 5. 一键综合分析
+选择菜单 `9`，自动执行完整流程：爬取TOP20排行 → 逐只分析 → 导出Excel + 生成全部图表。
+
+---
+
+## 项目结构
+
+```
+fund_analyzer/
+├── main.py                  # CLI 主程序入口
+├── requirements.txt         # 依赖列表
+├── README.md               # 使用说明
+├── core/                   # 核心模块
+│   ├── __init__.py
+│   ├── crawler.py          # 数据爬取（天天基金网）
+│   ├── analyzer.py         # 数据分析（收益率/回撤/对比）
+│   ├── visualizer.py       # 可视化图表（pyecharts）
+│   └── reporter.py         # Excel 报告导出
+├── data/                   # 数据存储
+│   ├── funds_list.csv      # 基金列表
+│   ├── funds_ranking.csv   # 基金排行
+│   └── fund_history/       # 单只基金历史净值
+└── charts/                 # 图表输出
+    └── *.html              # HTML 图表文件
+```
+
+---
+
+## 核心模块说明
+
+### crawler.py - 数据爬取
+
+| 函数 | 功能 | 数据源 |
+|------|------|--------|
+| `get_fund_list()` | 获取全部基金列表（26639+只） | fundcode_search.js |
+| `get_fund_ranking()` | 按收益率排序获取排行 | rankhandler.aspx |
+| `get_fund_history()` | 获取单只基金历史净值 | F10DataApi.aspx |
+| `get_fund_detail()` | 获取基金详情页信息 | 基金详情页 |
+
+**反爬策略**: User-Agent 伪装、3次重试、0.5秒间隔、Referer 验证
+
+### analyzer.py - 数据分析
+
+| 函数 | 功能 |
+|------|------|
+| `filter_funds()` | 多维度条件筛选 |
+| `calculate_returns()` | 计算总收益、年化收益、波动率、夏普比率、最大回撤 |
+| `compare_funds()` | 多只基金横向对比 |
+| `correlation_analysis()` | 日增长率相关性矩阵 |
+| `fund_type_distribution()` | 基金类型分布统计 |
+
+**计算公式**:
+- 总收益率 = (最新净值 - 最早净值) / 最早净值 * 100%
+- 年化收益率 = ((1 + 总收益率/100)^(365/天数) - 1) * 100%
+- 波动率 = 日增长率标准差 * sqrt(252)
+- 夏普比率 = 年化收益率 / 波动率
+- 最大回撤 = max((峰值 - 谷值) / 峰值)
+
+### visualizer.py - 可视化图表
+
+| 函数 | 图表类型 |
+|------|---------|
+| `plot_net_value_trend()` | 净值走势图（双折线） |
+| `plot_return_comparison()` | 收益对比柱状图 |
+| `plot_type_distribution()` | 类型分布环形饼图 |
+| `plot_correlation_heatmap()` | 相关性热力图 |
+| `plot_growth_distribution()` | 增长率分布直方图 |
+
+### reporter.py - 报告导出
+
+| 函数 | 功能 |
+|------|------|
+| `export_fund_list()` | 导出基金列表 |
+| `export_ranking_report()` | 导出排行报告 |
+| `export_comparison_report()` | 导出对比报告 |
+| `generate_full_report()` | 多Sheet综合分析报告 |
+
+---
+
+## 数据源说明
+
+- **天天基金网** (fund.eastmoney.com): 国内最大的基金数据平台，数据覆盖全部公募基金
+- 数据包括：基金代码、名称、类型、净值、累计净值、日增长率、各周期收益率、手续费等
+
+---
+
+## 免责说明
+
+本工具仅供学习和研究使用，不构成投资建议。投资有风险，入市需谨慎。请根据自身情况独立判断。
+
+---
+
+## License
+
+MIT License
