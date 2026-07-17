@@ -92,6 +92,7 @@ python main.py
 
 ```
 fund_analyzer/
+gui.py
 ├── main.py                  # CLI 主程序入口
 ├── requirements.txt         # 依赖列表
 ├── README.md               # 使用说明
